@@ -75,6 +75,13 @@ a{color:inherit;text-decoration:none}
   box-shadow:0 1px 2px rgba(15,19,25,.03);transition:.15s}
 .chip:hover{border-color:var(--purple);color:var(--purple);transform:translateY(-1px)}
 
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:900px;margin:26px auto 0}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 17px}
+.s-lbl{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+.s-val{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:6px}
+.s-sub{font-size:12px;color:var(--muted);margin-top:3px;font-weight:600}
+.pos{color:var(--green)}
+
 .section-title{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:44px 0 16px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;gap:15px;align-items:flex-start;transition:.15s}
@@ -124,12 +131,12 @@ a{color:inherit;text-decoration:none}
   <aside class="sidebar" id="sidebar">
     <div class="brand"><div class="logo"></div><div class="brand-text">Quant Lab<span>Journal</span></div></div>
     <nav class="nav">
-      <a class="active" href="#"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>Home</a>
-      <a href="#"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>Journal</a>
-      <a href="#"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 4-6"/></svg></span>Backtesting</a>
-      <a href="#"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01"/></svg></span>Agents</a>
-      <a href="#"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4-8 4-8-4 8-4Z"/><path d="M4 11l8 4 8-4"/></svg></span>Mentor Mode</a>
-      <a href="#"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6l-4 4M6 18l4-4"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/></svg></span>PropFirm Sync<span class="badge">BETA</span></a>
+      <a class="active" href="home.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>Home</a>
+      <a href="index.html#trades"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>Journal</a>
+      <a href="soon.html?p=Backtesting"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 4-6"/></svg></span>Backtesting</a>
+      <a href="index.html#insights"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01"/></svg></span>Agents</a>
+      <a href="soon.html?p=Mentor+Mode"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4-8 4-8-4 8-4Z"/><path d="M4 11l8 4 8-4"/></svg></span>Mentor Mode</a>
+      <a href="index.html#propfirm"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6l-4 4M6 18l4-4"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/></svg></span>PropFirm Sync<span class="badge">BETA</span></a>
     </nav>
     <div class="side-foot">
       <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>Contact us</a>
@@ -150,31 +157,39 @@ a{color:inherit;text-decoration:none}
     </header>
 
     <main class="content">
-      <h1 class="greeting">Good afternoon, <b>RxT</b></h1>
+      <h1 class="greeting"><span id="greet">Good afternoon, </span><b>RxT</b></h1>
 
-      <div class="assistant">
+      <a class="assistant" href="index.html#insights">
         <div class="big-mark">✦</div>
         <div class="txt">
           <h3>Quant AI</h3>
           <p>Ask about your trades, setups, and performance…</p>
         </div>
         <div class="go"><svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-      </div>
+      </a>
 
       <div class="chips">
-        <div class="chip">Show my best setups</div>
-        <div class="chip">Review yesterday's trades</div>
-        <div class="chip">What mistakes am I repeating?</div>
-        <div class="chip">Build my game plan</div>
-        <div class="chip">Ask Quant anything</div>
+        <a class="chip" href="index.html#insights">Show my best setups</a>
+        <a class="chip" href="index.html#trades">Review yesterday's trades</a>
+        <a class="chip" href="index.html#insights">What mistakes am I repeating?</a>
+        <a class="chip" href="index.html#playbook">Build my game plan</a>
+        <a class="chip" href="index.html#insights">Ask Quant anything</a>
+      </div>
+
+      <!-- Stats glance -->
+      <div class="stats">
+        <div class="stat"><div class="s-lbl">Net P&amp;L</div><div class="s-val pos">+$626</div><div class="s-sub">this month</div></div>
+        <div class="stat"><div class="s-lbl">Win rate</div><div class="s-val">63%</div><div class="s-sub">last 30 trades</div></div>
+        <div class="stat"><div class="s-lbl">Profit factor</div><div class="s-val">2.35</div><div class="s-sub">all accounts</div></div>
+        <div class="stat"><div class="s-lbl">Trades logged</div><div class="s-val">41</div><div class="s-sub pos">+4 this week</div></div>
       </div>
 
       <h2 class="section-title">Explore Products</h2>
       <div class="grid">
-        <a class="tile"><div class="tic t-purple"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div><h4>Journal</h4><p>Review trades, patterns, and performance insights.</p></div></a>
-        <a class="tile"><div class="tic t-amber"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 4-6"/></svg></div><div><h4>Backtesting</h4><p>Validate strategies using historical market data.</p></div></a>
-        <a class="tile"><div class="tic t-red"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></svg></div><div><h4>PropSync</h4><p>Sync and manage all your prop firm accounts.</p></div></a>
-        <a class="tile"><div class="tic t-green"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01"/></svg></div><div><h4>Agents</h4><p>Automate sentiment analysis, trade reviews, and auto-tagging.</p></div></a>
+        <a class="tile" href="index.html#dashboard"><div class="tic t-purple"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div><div><h4>Journal</h4><p>Review trades, patterns, and performance insights.</p></div></a>
+        <a class="tile" href="soon.html?p=Backtesting"><div class="tic t-amber"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 4-6"/></svg></div><div><h4>Backtesting</h4><p>Validate strategies using historical market data.</p></div></a>
+        <a class="tile" href="index.html#propfirm"><div class="tic t-red"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></svg></div><div><h4>PropSync</h4><p>Sync and manage all your prop firm accounts.</p></div></a>
+        <a class="tile" href="index.html#insights"><div class="tic t-green"><svg viewBox="0 0 24 24" width="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01"/></svg></div><div><h4>Agents</h4><p>Automate sentiment analysis, trade reviews, and auto-tagging.</p></div></a>
       </div>
 
       <div class="two-col" style="margin-top:44px">
@@ -190,9 +205,9 @@ a{color:inherit;text-decoration:none}
         <div>
           <h2 class="section-title" style="margin:0 0 16px">Resources</h2>
           <div class="card res">
-            <a><span class="ri"><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4zM4 9h16"/></svg></span>Getting started with Quant Lab</a>
-            <a><span class="ri"><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4-8 4-8-4 8-4Z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></span>Quant Academy — Essence model</a>
-            <a><span class="ri"><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>Join the Quant Lab community</a>
+            <a href="index.html#dashboard"><span class="ri"><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4zM4 9h16"/></svg></span>Getting started with Quant Lab</a>
+            <a href="https://thequantlab.trading" target="_blank"><span class="ri"><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4-8 4-8-4 8-4Z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg></span>Quant Academy — Essence model</a>
+            <a href="https://x.com/quantlabHQ" target="_blank"><span class="ri"><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>Join the Quant Lab community</a>
           </div>
         </div>
       </div>
@@ -200,9 +215,12 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<button class="fab" title="New trade">+</button>
+<a class="fab" href="index.html#trades" title="Log a trade">+</a>
 <script>
 function toggle(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('scrim').classList.toggle('show')}
+// time-aware greeting
+(function(){var h=new Date().getHours();var g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+  var el=document.getElementById('greet');if(el)el.textContent=g+', ';})();
 </script>
 </body>
 </html>
