@@ -81,5 +81,33 @@ const Charts = (function () {
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:(x)=>x[0].label,label:(x)=>' $'+Number(x.raw).toLocaleString()}}},
         scales:{x:{display:false},y:{ticks:{color:t.muted,font:{size:10},callback:(v)=>'$'+(Math.abs(v)>=1000?(v/1000)+'k':v)},grid:{color:t.line}}}}});
   }
-  return { equity, radar, rdist, recap, gauge, donut, dailyPnl, destroyAll:()=>Object.keys(inst).forEach(destroy) };
+  // ---- TradingView embed (Advanced Chart widget) ----
+  function tvSymbol(sym){
+    const s=(sym||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const root=s.replace(/[FGHJKMNQUVXZ]\d{1,2}$/,'').replace(/\d+$/,'');
+    const map={ MNQ:'CME_MINI:MNQ1!', NQ:'CME_MINI:NQ1!', MES:'CME_MINI:MES1!', ES:'CME_MINI:ES1!',
+      MYM:'CBOT_MINI:MYM1!', YM:'CBOT_MINI:YM1!', M2K:'CME_MINI:M2K1!', RTY:'CME_MINI:RTY1!',
+      MGC:'COMEX:MGC1!', GC:'COMEX:GC1!', MCL:'NYMEX:MCL1!', CL:'NYMEX:CL1!', SI:'COMEX:SI1!',
+      MBT:'CME:MBT1!', BTC:'CME:BTC1!', ETH:'CME:ETH1!' };
+    return map[s]||map[root]||(sym?sym.toUpperCase():'CME_MINI:MNQ1!');
+  }
+  let _tvLoading=null;
+  function loadTV(){
+    if(window.TradingView&&window.TradingView.widget) return Promise.resolve();
+    if(_tvLoading) return _tvLoading;
+    _tvLoading=new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://s3.tradingview.com/tv.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+    return _tvLoading;
+  }
+  function tvEmbed(elId, trade){
+    const host=document.getElementById(elId); if(!host) return; host.innerHTML='<div class="tv-loading">Loading TradingView…</div>';
+    const dark=document.documentElement.getAttribute('data-theme')==='dark';
+    const cid='tvw_'+Math.random().toString(36).slice(2);
+    loadTV().then(()=>{
+      host.innerHTML=''; const div=document.createElement('div'); div.id=cid; div.style.height='100%'; host.appendChild(div);
+      new TradingView.widget({ container_id:cid, autosize:true, symbol:tvSymbol(trade&&trade.symbol),
+        interval:'15', timezone:'America/New_York', theme:dark?'dark':'light', style:'1', locale:'en',
+        toolbar_bg:dark?'#131922':'#ffffff', hide_side_toolbar:false, allow_symbol_change:true, withdateranges:true, details:false });
+    }).catch(()=>{ host.innerHTML='<div class="empty">Couldn\'t load TradingView (offline?). Switch to Trade recap.</div>'; });
+  }
+  return { equity, radar, rdist, recap, gauge, donut, dailyPnl, tvEmbed, tvSymbol, destroyAll:()=>Object.keys(inst).forEach(destroy) };
 })();
