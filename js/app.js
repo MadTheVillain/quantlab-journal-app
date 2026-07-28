@@ -53,7 +53,7 @@
     $$('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.tab===TAB));
     $$('.tab').forEach(s=>s.classList.add('hidden'));
     $('#tab-'+TAB).classList.remove('hidden');
-    $('#page-title').textContent={dashboard:'Dashboard',trades:'Trades',playbook:'Playbook',insights:'Insights',propfirm:'Prop Firm'}[TAB];
+    $('#page-title').textContent={dashboard:'Dashboard',trades:'Trade View',playbook:'Strategies',insights:'Reports',propfirm:'Prop Firm'}[TAB];
     const ap=$('#acct-pill'); if(filters.firm!=='all'){ ap.textContent='◎ '+filters.firm+' ✕'; ap.style.cursor='pointer'; ap.onclick=()=>{filters.firm='all';render();}; } else { ap.textContent='All accounts'; ap.style.cursor='default'; ap.onclick=null; }
     if(TAB==='dashboard') renderDash();
     if(TAB==='trades') renderTrades();
@@ -64,18 +64,33 @@
 
   function renderDash(){
     const T=filtered(); const m=Analytics.metrics(T);
-    $('#kpi-row').innerHTML=[
-      kpi('Net P&L', money(m.net), `${m.n} trade${m.n===1?'':'s'}`, m.net>0?'pos':(m.net<0?'neg':'')),
-      kpi('Win rate', m.winRate+'%', `${m.wins}W / ${m.losses}L`),
-      kpi('Profit factor', isFinite(m.profitFactor)?m.profitFactor.toFixed(2):'∞', 'gross win / loss'),
-      kpi('Expectancy', money(m.expectancy), 'per trade', m.expectancy>0?'pos':(m.expectancy<0?'neg':'')),
-      kpi('Max drawdown', money(-m.maxDD), m.avgR!=null?`avg ${m.avgR}R`:'peak to trough','neg')
-    ].join('');
+    // Net P&L
+    const net=$('#d-net'); net.textContent=money(m.net); net.className='sc-val '+(m.net>0?'pos':(m.net<0?'neg':''));
+    $('#d-n').textContent=m.n; $('#d-net-sub').textContent=(filters.firm||'All accounts');
+    // Trade win %
+    $('#d-winrate').textContent=m.winRate+'%';
+    $('#d-w').textContent=m.wins; $('#d-be').textContent=m.bes; $('#d-l').textContent=m.losses;
+    Charts.gauge('g-winrate', m.winRate);
+    // Profit factor
+    $('#d-pf').textContent=isFinite(m.profitFactor)?m.profitFactor.toFixed(2):'∞';
+    Charts.donut('g-pf', m.grossWin, m.grossLoss);
+    // Day win %
+    const dp=m.dayPnls||[]; const dW=dp.filter(d=>d.pnl>0).length, dL=dp.filter(d=>d.pnl<0).length, dB=dp.filter(d=>d.pnl===0).length;
+    const dwin=dp.length?Math.round(dW/dp.length*100):0;
+    $('#d-daywin').textContent=dwin+'%'; $('#dd-w').textContent=dW; $('#dd-be').textContent=dB; $('#dd-l').textContent=dL;
+    Charts.gauge('g-daywin', dwin);
+    // Avg win/loss
+    const aw=m.avgWin||0, al=Math.abs(m.avgLoss||0); const ratio=al?aw/al:(aw>0?aw:0);
+    $('#d-wl').textContent=ratio?ratio.toFixed(2):'—';
+    const winPct=(aw+al)?aw/(aw+al)*100:50;
+    $('#wl-win').style.width=winPct+'%'; $('#wl-loss').style.width=(100-winPct)+'%';
+    $('#d-avgwin').textContent=money(aw); $('#d-avgloss').textContent=money(-al);
+    // Quant score + daily P&L
     $('#perf-score').textContent=m.score||'—';
-    $('#equity-sub').textContent=T.length?`${money(m.net)} over ${m.n} trades`:'';
-    Charts.equity('chart-equity', m.curve.length?m.curve:[{eq:0}]);
     Charts.radar('chart-radar', m.axes);
-    Charts.rdist('chart-rdist', T);
+    Charts.dailyPnl('chart-daily', dp);
+    // last activity
+    $('#last-import').textContent = T.length? new Date(T[T.length-1].date).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'}) : '—';
     if(!calMonth){ const last=T.length?new Date(T[T.length-1].date):new Date(); calMonth=new Date(last.getFullYear(),last.getMonth(),1); }
     renderCalendar(T);
     renderFirms(T);
@@ -341,6 +356,7 @@
     $('#trade-search').oninput=e=>{ filters.search=e.target.value; renderTrades(); };
     $$('#trades-table th[data-sort]').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; filters.sort= filters.sort.key===k?{key:k,dir:-filters.sort.dir}:{key:k,dir:-1}; renderTrades(); });
     $('#btn-add').onclick=()=>openTradeForm();
+    { const sd=$('#start-day'); if(sd) sd.onclick=()=>{ TAB='insights'; render(); }; }
     $('#btn-add-playbook').onclick=()=>openPlaybookForm();
     $('#btn-edit-prop').onclick=openPropForm;
     $('#cal-prev').onclick=()=>{ calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()-1,1); renderCalendar(filtered()); };
