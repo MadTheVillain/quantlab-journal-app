@@ -184,7 +184,12 @@ button{font-family:inherit;cursor:pointer}
 .recap-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;margin:14px 0}
 .recap-stats .r-l{color:var(--muted);font-size:13px}
 .recap-stats .r-v{font-weight:700;font-size:13px;text-align:right}
-#recap-chart{height:280px;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+#recap-chart{height:400px;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+.recap-chart-toggle{display:flex;align-items:center;gap:6px;margin-top:6px}
+.recap-chart-toggle .seg{font-size:12.5px;font-weight:700;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:9px;cursor:pointer}
+.recap-chart-toggle .seg.active{background:var(--grad);color:#fff;border-color:transparent}
+.recap-chart-toggle .recap-sym{margin-left:auto;font-size:12px;font-weight:700;color:var(--faint)}
+.tv-loading{display:grid;place-items:center;height:100%;color:var(--muted);font-size:14px}
 .recap-notes{margin-top:14px;background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--ink);line-height:1.5}
 
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transition:opacity .2s,transform .2s}
