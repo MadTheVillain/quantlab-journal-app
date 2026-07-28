@@ -64,7 +64,7 @@ const Demo = (function () {
     if(seeded || trades.length) return false;
     for(const p of PB) await Store.savePlaybook({...p, demo:true});
     for(const t of TR) await Store.saveTrade(t);
-    await Store.setSetting('prop', { firm:'Topstep', account:'50K Combine', startBalance:50000, profitTarget:3000, dailyLossLimit:1000, maxLossLimit:2000, trailing:true });
+    await Store.setSetting('prop', (typeof FIRMS!=='undefined' && FIRMS.toConfig('topstep','50K')) || { firm:'Topstep', account:'50K', startBalance:50000, profitTarget:3000, dailyLossLimit:1000, maxLossLimit:2000, trailing:true });
     await Store.setSetting('seeded', true);
     return true;
   }
