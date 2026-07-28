@@ -347,6 +347,11 @@
         <div class="card-label">${(t.date||'').slice(0,10)} · ${esc(t.symbol)} · <span class="pill ${long?'long':'short'}">${long?'Long':'Short'}</span></div>
         <div class="recap-pnl ${t.pnl>0?'pos':(t.pnl<0?'neg':'')}">${money(t.pnl)}</div></div>
         <button class="btn btn-ghost btn-sm" id="rc-edit">Edit</button></div>
+      <div class="recap-chart-toggle">
+        <button class="seg active" data-view="tv">TradingView</button>
+        <button class="seg" data-view="draw">Trade recap</button>
+        <span class="recap-sym">${Charts.tvSymbol(t.symbol)}</span>
+      </div>
       <div id="recap-chart"></div>
       <div class="recap-stats">
         <div class="r-l">Entry</div><div class="r-v">${t.entry??'—'}</div>
@@ -362,7 +367,11 @@
         <ul class="pb-rules" style="margin-top:8px">${t.rules.map(r=>`<li style="${r.ok?'':'opacity:.5'}">${r.ok?'':'✗ '}${esc(r.text)}</li>`).join('')}</ul>`:''}
       ${t.notes?`<div class="recap-notes"><b>Notes</b><br>${esc(t.notes)}</div>`:''}`);
     $('#rc-edit').onclick=()=>{ closeModal(); openTradeForm(t); };
-    setTimeout(()=>Charts.recap('recap-chart', t), 30);
+    setTimeout(()=>Charts.tvEmbed('recap-chart', t), 30);
+    $$('.recap-chart-toggle .seg').forEach(b=>b.onclick=()=>{
+      $$('.recap-chart-toggle .seg').forEach(x=>x.classList.toggle('active',x===b));
+      if(b.dataset.view==='tv') Charts.tvEmbed('recap-chart', t); else Charts.recap('recap-chart', t);
+    });
   }
 
   function openDay(dayKey){
