@@ -20,16 +20,16 @@
       <div class="logo"></div>
       <div class="brand-text">Quant Lab<span>Journal</span></div>
     </div>
+    <button id="btn-add" class="btn btn-primary btn-block addtrade">+ Add Trade</button>
     <nav class="nav">
       <a class="nav-item" href="index.html" style="text-decoration:none"><span class="ni-ic">⌂</span> Home</a>
       <button class="nav-item active" data-tab="dashboard"><span class="ni-ic">◧</span> Dashboard</button>
-      <button class="nav-item" data-tab="trades"><span class="ni-ic">≣</span> Trades</button>
-      <button class="nav-item" data-tab="playbook"><span class="ni-ic">◆</span> Playbook</button>
-      <button class="nav-item" data-tab="insights"><span class="ni-ic">✦</span> Insights</button>
+      <button class="nav-item" data-tab="trades"><span class="ni-ic">≣</span> Trade View</button>
+      <button class="nav-item" data-tab="playbook"><span class="ni-ic">◆</span> Strategies</button>
+      <button class="nav-item" data-tab="insights"><span class="ni-ic">✦</span> Reports</button>
       <button class="nav-item" data-tab="propfirm"><span class="ni-ic">◎</span> Prop Firm</button>
     </nav>
     <div class="sidebar-foot">
-      <button id="btn-add" class="btn btn-primary btn-block">+ Log a trade</button>
       <div class="sidebar-tools">
         <button id="btn-import" class="btn btn-ghost">Import CSV</button>
         <button id="btn-export" class="btn btn-ghost">Backup</button>
@@ -59,30 +59,69 @@
 
     <!-- DASHBOARD -->
     <section class="tab" id="tab-dashboard">
-      <div class="kpi-row" id="kpi-row"></div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-head"><span class="card-label">Equity curve</span><span class="card-sub" id="equity-sub"></span></div>
-          <div class="chart-wrap"><canvas id="chart-equity"></canvas></div>
+      <div class="dash-bar">
+        <div class="last-import">Last activity: <b id="last-import">—</b></div>
+        <button class="btn btn-primary" id="start-day">🚀 Start my day</button>
+      </div>
+
+      <div class="stat-row three">
+        <div class="card stat">
+          <div class="sc-head"><span class="card-label">Net P&amp;L</span><span class="n-badge" id="d-n">0</span></div>
+          <div class="sc-val" id="d-net">$0</div>
+          <div class="sc-foot" id="d-net-sub">All accounts</div>
         </div>
-        <div class="card">
-          <div class="card-head"><span class="card-label">Performance score</span><span class="perf-score" id="perf-score">—</span></div>
-          <div class="chart-wrap"><canvas id="chart-radar"></canvas></div>
+        <div class="card stat">
+          <div class="sc-head"><span class="card-label">Trade win %</span></div>
+          <div class="sc-body">
+            <div class="gauge-wrap"><canvas id="g-winrate"></canvas><div class="g-center" id="d-winrate">0%</div></div>
+            <div class="wbl"><span class="pill w" id="d-w">0</span><span class="pill be" id="d-be">0</span><span class="pill l" id="d-l">0</span></div>
+          </div>
+        </div>
+        <div class="card stat">
+          <div class="sc-head"><span class="card-label">Profit factor</span></div>
+          <div class="sc-body">
+            <div class="sc-val" id="d-pf">0.00</div>
+            <div class="donut-wrap"><canvas id="g-pf"></canvas></div>
+          </div>
         </div>
       </div>
-      <div class="grid-2">
+
+      <div class="stat-row two">
+        <div class="card stat">
+          <div class="sc-head"><span class="card-label">Day win %</span></div>
+          <div class="sc-body">
+            <div class="gauge-wrap"><canvas id="g-daywin"></canvas><div class="g-center" id="d-daywin">0%</div></div>
+            <div class="wbl"><span class="pill w" id="dd-w">0</span><span class="pill be" id="dd-be">0</span><span class="pill l" id="dd-l">0</span></div>
+          </div>
+        </div>
+        <div class="card stat">
+          <div class="sc-head"><span class="card-label">Avg win/loss trade</span></div>
+          <div class="sc-body col">
+            <div class="sc-val" id="d-wl">0.00</div>
+            <div class="wl-bar"><div class="wl-win" id="wl-win"></div><div class="wl-loss" id="wl-loss"></div></div>
+            <div class="wl-labels"><span class="pos" id="d-avgwin">$0</span><span class="neg" id="d-avgloss">$0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-row three">
+        <div class="card">
+          <div class="card-head"><span class="card-label">Quant score</span><span class="perf-score" id="perf-score">—</span></div>
+          <div class="chart-wrap sm"><canvas id="chart-radar"></canvas></div>
+        </div>
         <div class="card">
           <div class="card-head">
-            <div><span class="card-label">P&L calendar</span><div class="card-sub" id="cal-month">—</div></div>
+            <div><span class="card-label">Progress tracker</span><div class="card-sub" id="cal-month">—</div></div>
             <div class="cal-nav"><button class="icon-btn" id="cal-prev">‹</button><button class="icon-btn" id="cal-next">›</button></div>
           </div>
           <div class="calendar" id="calendar"></div>
         </div>
         <div class="card">
-          <div class="card-head"><span class="card-label">R multiple distribution</span></div>
-          <div class="chart-wrap"><canvas id="chart-rdist"></canvas></div>
+          <div class="card-head"><span class="card-label">Net daily P&amp;L</span></div>
+          <div class="chart-wrap sm"><canvas id="chart-daily"></canvas></div>
         </div>
       </div>
+
       <div class="card" id="firms-card">
         <div class="card-head"><span class="card-label">Firms</span><span class="card-sub" id="firms-sub"></span></div>
         <div class="firms-grid" id="firms-grid"></div>
