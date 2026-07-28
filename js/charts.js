@@ -58,18 +58,20 @@ const Charts = (function () {
     if(recapRO){ recapRO.disconnect(); } recapRO=new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth,height:host.clientHeight})); recapRO.observe(host);
     chart.applyOptions({width:host.clientWidth,height:host.clientHeight});
   }
-  // Half-gauge split green(win)/red(loss) by pct
+  // Half-gauge split green(win)/red(loss). Fixed square buffer + responsive:false
+  // so the semicircle never distorts; the wrapper CSS clips to the top half.
   function gauge(canvasId, pct){
     destroy(canvasId); const c=document.getElementById(canvasId); if(!c) return; const t=theme();
-    pct=Math.max(0,Math.min(100,pct));
+    pct=Math.max(0,Math.min(100,pct)); c.width=280; c.height=280;
     inst[canvasId]=new Chart(c,{type:'doughnut',data:{datasets:[{data:[pct,100-pct],backgroundColor:[t.green,t.red],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,rotation:-90,circumference:180,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+      options:{responsive:false,rotation:-90,circumference:180,cutout:'72%',animation:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
   }
   // Full donut: a(green) vs b(red)
   function donut(canvasId, a, b){
     destroy(canvasId); const c=document.getElementById(canvasId); if(!c) return; const t=theme();
+    c.width=200; c.height=200;
     inst[canvasId]=new Chart(c,{type:'doughnut',data:{datasets:[{data:[a||0,b||0],backgroundColor:[t.green,t.red],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:'74%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+      options:{responsive:false,cutout:'74%',animation:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
   }
   // Net daily P&L bar chart (green/red)
   function dailyPnl(canvasId, dayPnls){
