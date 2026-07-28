@@ -6,7 +6,7 @@
   const money = (v)=> (v<0?'-':'')+'$'+Math.abs(v).toLocaleString(undefined,{maximumFractionDigits:0});
 
   let TRADES=[], PBS=[], PROP=null, TAB='dashboard';
-  let filters={ range:'all', playbook:'all', search:'' , sort:{key:'date',dir:-1}};
+  let filters={ range:'all', playbook:'all', firm:'all', search:'' , sort:{key:'date',dir:-1}};
   let calMonth=null;
 
   async function init(){
@@ -43,6 +43,7 @@
         return true; });
     }
     if(filters.playbook!=='all') T=T.filter(t=>t.setup===filters.playbook);
+    if(filters.firm!=='all') T=T.filter(t=>t.firm===filters.firm);
     if(filters.search){ const q=filters.search.toLowerCase(); T=T.filter(t=>[t.symbol,pbName(t.setup),t.notes,t.direction].join(' ').toLowerCase().includes(q)); }
     return T;
   }
@@ -53,6 +54,7 @@
     $$('.tab').forEach(s=>s.classList.add('hidden'));
     $('#tab-'+TAB).classList.remove('hidden');
     $('#page-title').textContent={dashboard:'Dashboard',trades:'Trades',playbook:'Playbook',insights:'Insights',propfirm:'Prop Firm'}[TAB];
+    const ap=$('#acct-pill'); if(filters.firm!=='all'){ ap.textContent='◎ '+filters.firm+' ✕'; ap.style.cursor='pointer'; ap.onclick=()=>{filters.firm='all';render();}; } else { ap.textContent='All accounts'; ap.style.cursor='default'; ap.onclick=null; }
     if(TAB==='dashboard') renderDash();
     if(TAB==='trades') renderTrades();
     if(TAB==='playbook') renderPlaybook();
@@ -76,6 +78,30 @@
     Charts.rdist('chart-rdist', T);
     if(!calMonth){ const last=T.length?new Date(T[T.length-1].date):new Date(); calMonth=new Date(last.getFullYear(),last.getMonth(),1); }
     renderCalendar(T);
+    renderFirms(T);
+  }
+
+  function renderFirms(T){
+    const card=$('#firms-card'); const withFirm=T.filter(t=>t.firm);
+    if(!withFirm.length){ card.classList.add('hidden'); return; }
+    card.classList.remove('hidden');
+    const byFirm={}; for(const t of withFirm){ (byFirm[t.firm]=byFirm[t.firm]||[]).push(t); }
+    const firms=Object.entries(byFirm).map(([firm,ts])=>{
+      const m=Analytics.metrics(ts);
+      const accts={}; for(const t of ts){ const a=t.account||'—'; (accts[a]=accts[a]||[]).push(t); }
+      const accStats=Object.entries(accts).map(([a,at])=>({a, net:at.reduce((s,x)=>s+(+x.pnl||0),0)}));
+      const best=accStats.slice().sort((a,b)=>b.net-a.net)[0], worst=accStats.slice().sort((a,b)=>a.net-b.net)[0];
+      return { firm, n:ts.length, net:m.net, win:m.winRate, pf:m.profitFactor, accts:accStats.length, best, worst };
+    }).sort((a,b)=>b.net-a.net);
+    $('#firms-sub').textContent=`${firms.length} firm${firms.length===1?'':'s'} · ${Object.keys(byFirm).length} tracked`;
+    $('#firms-grid').innerHTML=firms.map(f=>`
+      <div class="firm-card ${f.net<0?'neg-edge':''}">
+        <div class="firm-top"><span class="firm-name">${esc(f.firm)}</span><span class="firm-accts">${f.accts} acct${f.accts===1?'':'s'}</span></div>
+        <div class="firm-net ${f.net>0?'pos':(f.net<0?'neg':'')}">${money(f.net)}</div>
+        <div class="firm-meta">${f.n} trades · ${f.win}% win · PF ${isFinite(f.pf)?f.pf.toFixed(2):'∞'}</div>
+        ${f.accts>1?`<div class="firm-bw">best <b>${esc(f.best.a)}</b> ${money(Math.round(f.best.net))} · worst <b>${esc(f.worst.a)}</b> ${money(Math.round(f.worst.net))}</div>`:`<div class="firm-bw">account <b>${esc(f.best.a)}</b></div>`}
+      </div>`).join('');
+    $$('#firms-grid .firm-card').forEach((el,i)=>el.onclick=()=>{ filters.firm=firms[i].firm; TAB='trades'; render(); });
   }
   function kpi(l,v,s,cls=''){ return `<div class="kpi"><div class="k-label">${l}</div><div class="k-val ${cls}">${v}</div><div class="k-sub">${s}</div></div>`; }
 
@@ -204,7 +230,10 @@
         <div class="field"><label>Target</label><input name="target" type="number" step="any" value="${t.target??''}"></div>
         <div class="field"><label>P&L (override)</label><input name="pnl" type="number" step="any" value="${t.pnl??''}" placeholder="auto"></div>
         <div class="field"><label>Session</label><input name="session" value="${esc(t.session||'')}" placeholder="auto from time"></div>
+        <div class="field"><label>Prop firm</label><input name="firm" list="firm-list" value="${esc(t.firm||'')}" placeholder="e.g. Topstep"></div>
+        <div class="field"><label>Account</label><input name="account" value="${esc(t.account||'')}" placeholder="e.g. TS-50K"></div>
       </div>
+      <datalist id="firm-list">${[...new Set(TRADES.map(x=>x.firm).filter(Boolean))].map(f=>`<option value="${esc(f)}">`).join('')}</datalist>
       <div id="rulebox">${t.setup?ruleChecksHTML(t.setup,t.rules):''}</div>
       <div class="field full"><label>Notes</label><textarea name="notes" placeholder="What was the setup, what did you feel, what would you change?">${esc(t.notes||'')}</textarea></div>
       <div class="form-actions">${t.id?`<button type="button" class="btn btn-danger" id="tf-del">Delete</button>`:''}<button type="button" class="btn btn-ghost" id="tf-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save trade</button></div>
@@ -224,7 +253,7 @@
       const rules = form.setup.value ? $$('#rulebox input[data-rule]').map((c,i)=>({text:(PBS.find(p=>p.id===form.setup.value).rules[i]),ok:c.checked})) : null;
       const trade={ ...t, symbol:sym, direction:dir, entry, exit, stop, target, contracts, pnl, r,
         outcome: pnl>0?'win':(pnl<0?'loss':'be'), date:iso, entry_ts:iso, setup:form.setup.value||'',
-        session:g('session')||'', notes:g('notes')||'', rules };
+        session:g('session')||'', firm:g('firm')||'', account:g('account')||'', notes:g('notes')||'', rules };
       if(t.demo) delete trade.demo;
       await Store.saveTrade(trade); await reload(); render(); closeModal(); toast(t.id?'Trade updated':'Trade logged');
     };

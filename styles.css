@@ -134,6 +134,19 @@ button{font-family:inherit;cursor:pointer}
 .insight p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
 .insight .i-metric{font-size:22px;font-weight:800;margin-top:8px}
 
+/* Firms */
+.firms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:4px}
+.firm-card{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:15px 16px;cursor:pointer;transition:transform .08s,box-shadow .12s;border-top:3px solid var(--green)}
+.firm-card.neg-edge{border-top-color:var(--red)}
+.firm-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.firm-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.firm-name{font-weight:700;font-size:14.5px}
+.firm-accts{font-size:10.5px;font-weight:600;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.firm-net{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.firm-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.firm-bw{font-size:11px;color:var(--faint);margin-top:6px;line-height:1.4}
+.firm-bw b{color:var(--ink)}
+
 /* Prop firm */
 .prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
 .gauge{margin-top:10px}

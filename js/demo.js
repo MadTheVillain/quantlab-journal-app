@@ -51,6 +51,13 @@ const Demo = (function () {
     mk('27',10,15,'short',28324,28125,28362,28125,'pb_set2',true,'The live one — CISD short, +2R, +$532.')
   ];
 
+  // assign demo trades across a few prop firms / accounts so the Firms section is alive
+  TR.forEach((t,i)=>{
+    if(t.setup==='pb_set2'){ if(i%4===0){ t.firm='MyFundedFutures'; t.account='MFF-50K'; } else { t.firm='Topstep'; t.account = i%3===0?'TS-100K':'TS-50K'; } }
+    else if(t.setup==='pb_bo'){ t.firm='TradeDay'; t.account='TD-25K'; }
+    else { t.firm='Apex'; t.account='APX-100K'; }
+  });
+
   async function seedIfEmpty(){
     const seeded = await Store.getSetting('seeded', false);
     const trades = await Store.getTrades();
