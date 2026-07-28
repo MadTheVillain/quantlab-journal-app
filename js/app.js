@@ -111,7 +111,7 @@
     $('#firms-sub').textContent=`${firms.length} firm${firms.length===1?'':'s'} · ${Object.keys(byFirm).length} tracked`;
     $('#firms-grid').innerHTML=firms.map(f=>`
       <div class="firm-card ${f.net<0?'neg-edge':''}">
-        <div class="firm-top"><span class="firm-name">${esc(f.firm)}</span><span class="firm-accts">${f.accts} acct${f.accts===1?'':'s'}</span></div>
+        <div class="firm-top">${(function(){const id=FIRMS.matchId(f.firm);return id?`<img class="firm-logo-sm" src="${FIRMS.logo(id)}" alt="" onerror="this.style.display='none'">`:'';})()}<span class="firm-name">${esc(f.firm)}</span><span class="firm-accts">${f.accts} acct${f.accts===1?'':'s'}</span></div>
         <div class="firm-net ${f.net>0?'pos':(f.net<0?'neg':'')}">${money(f.net)}</div>
         <div class="firm-meta">${f.n} trades · ${f.win}% win · PF ${isFinite(f.pf)?f.pf.toFixed(2):'∞'}</div>
         ${f.accts>1?`<div class="firm-bw">best <b>${esc(f.best.a)}</b> ${money(Math.round(f.best.net))} · worst <b>${esc(f.worst.a)}</b> ${money(Math.round(f.worst.net))}</div>`:`<div class="firm-bw">account <b>${esc(f.best.a)}</b></div>`}
@@ -183,38 +183,70 @@
       <p>${esc(i.body)}</p></div>`).join('');
   }
 
+  let _pickFirm=null;
   function renderProp(){
-    if(!PROP){ $('#prop-body').innerHTML='<div class="empty">No prop account configured. Click <b>Configure account</b> to track Topstep/Apex rules.</div>'; return; }
+    const activeFirm = _pickFirm || (PROP&&PROP.firmId) || null;
+    const picker = `
+      <div class="card firm-picker">
+        <div class="card-label">Select your prop firm</div>
+        <div class="firm-logos" id="firm-logos">
+          ${FIRMS.list().map(f=>`<button class="firm-logo-btn ${f.id===activeFirm?'sel':''}" data-firm="${f.id}" title="${esc(f.name)}"><img src="${FIRMS.logo(f.id)}" alt="" onerror="this.style.visibility='hidden'"><span>${esc(f.name)}</span></button>`).join('')}
+        </div>
+        <div class="firm-acct-row" id="firm-acct-row" ${activeFirm?'':'style="display:none"'}>
+          <select id="firm-acct" class="select"></select>
+          <button class="btn btn-primary" id="firm-track">Track this account</button>
+        </div>
+      </div>`;
+    if(!PROP){ $('#prop-body').innerHTML=picker+'<div class="empty">Pick a firm and account above to start tracking your rules.</div>'; bindPicker(activeFirm); return; }
     const s=Analytics.propStatus(TRADES.filter(t=>filters.playbook==='all'||t.setup===filters.playbook), PROP);
-    const dllUsed = s.worstDay? Math.min(Math.abs(Math.min(s.worstDay.pnl,0))/s.dll*100,100):0;
+    const dllUsed = (s.dll>0 && s.worstDay)? Math.min(Math.abs(Math.min(s.worstDay.pnl,0))/s.dll*100,100):0;
     const ddUsed = s.mll? Math.min(s.currentDD/s.mll*100,100):0;
     const pcls=(v)=>v>=100?'bad':(v>=70?'warn':'ok');
-    $('#prop-body').innerHTML=`
+    const ddLabel={static:'Static drawdown','end-of-day-trailing':'EOD trailing drawdown','intraday-trailing':'Intraday trailing drawdown',trailing:'Trailing drawdown'}[s.drawdownType]||'Max drawdown';
+    const f=FIRMS.get(PROP.firmId);
+    $('#prop-body').innerHTML=picker+`
       <div class="prop-grid">
-        <div class="card"><div class="card-label">${esc(PROP.firm)} · ${esc(PROP.account)}</div>
-          <div class="k-val" style="margin-top:10px">${money(s.currentEquity)}</div>
-          <div class="card-sub">Equity · started ${money(s.startBal)} · net ${s.netProfit>=0?'+':''}${money(s.netProfit)}</div>
+        <div class="card">
+          <div class="prop-head"><img class="firm-logo-lg" src="${FIRMS.logo(PROP.firmId)}" onerror="this.style.display='none'"><div><div class="card-label">${esc(PROP.firm)} · ${esc(PROP.account)}</div><div class="card-sub">${money(PROP.startBalance)} account · ${esc(PROP.drawdownType)}</div></div></div>
+          <div class="k-val" style="margin-top:12px">${money(s.currentEquity)}</div>
+          <div class="card-sub">Equity · net ${s.netProfit>=0?'+':''}${money(s.netProfit)}</div>
           <div class="prop-row" style="margin-top:14px">Profit target <b>${money(s.target)}</b></div>
           <div class="bar ok"><i style="width:${s.progress}%"></i></div>
-          <div class="card-sub">${s.progress}% there · ${s.daysToPass===0?'target reached 🎯':(s.daysToPass?`~${s.daysToPass} green day${s.daysToPass===1?'':'s'} to pass (avg ${money(s.avgWinDay)}/win day)`:'need winning days to project')}</div>
+          <div class="card-sub">${s.progress}% there · ${s.daysToPass===0?'target reached 🎯':(s.daysToPass?`~${s.daysToPass} green day${s.daysToPass===1?'':'s'} to pass`:'need winning days to project')}</div>
         </div>
         <div class="card"><div class="card-label">Rule usage</div>
-          <div class="prop-row" style="margin-top:12px">Daily loss limit <b>${money(s.dll)}</b></div>
-          <div class="bar ${pcls(dllUsed)}"><i style="width:${dllUsed}%"></i></div>
-          <div class="card-sub">Worst day: ${s.worstDay?money(s.worstDay.pnl):'—'} (${Math.round(dllUsed)}% of limit)</div>
-          <div class="prop-row" style="margin-top:14px">${s.trailing?'Trailing':'Max'} drawdown <b>${money(s.mll)}</b></div>
+          ${s.dll>0
+            ? `<div class="prop-row" style="margin-top:12px">Daily loss limit <b>${money(s.dll)}</b></div><div class="bar ${pcls(dllUsed)}"><i style="width:${dllUsed}%"></i></div><div class="card-sub">Worst day ${s.worstDay?money(s.worstDay.pnl):'—'} (${Math.round(dllUsed)}% of limit)</div>`
+            : `<div class="prop-row" style="margin-top:12px">Daily loss limit <b>None</b></div><div class="card-sub">This account has no daily loss limit.</div>`}
+          <div class="prop-row" style="margin-top:14px">${ddLabel} <b>${money(s.mll)}</b></div>
           <div class="bar ${pcls(ddUsed)}"><i style="width:${ddUsed}%"></i></div>
-          <div class="card-sub">Current DD from peak: ${money(s.currentDD)} (${Math.round(ddUsed)}% of limit)</div>
+          <div class="card-sub">Current DD ${money(s.currentDD)} (${Math.round(ddUsed)}% of limit)</div>
         </div>
       </div>
       <div class="card">
         <div class="card-label">Rule check</div>
-        <div style="margin-top:12px">
-          ${s.dllViolations.length?`<div class="prop-row"><span class="violation">⚠ ${s.dllViolations.length} day(s) breached the daily loss limit:</span> <b>${s.dllViolations.map(d=>d.day).join(', ')}</b></div>`:'<div class="prop-row">✅ No daily-loss-limit breaches.</div>'}
-          ${s.maxDDbreach?'<div class="prop-row"><span class="violation">⚠ Trailing drawdown limit was breached.</span></div>':'<div class="prop-row">✅ Drawdown within limit.</div>'}
-          <div class="prop-row">Best day <b class="pos">${s.m.bestDay?money(s.m.bestDay.pnl):'—'}</b> · discipline: two-loss halt keeps ${money(s.dll)} intact.</div>
+        <div class="rulelist" style="margin-top:12px">
+          <div class="prop-row">${s.progress>=100?'✅':'○'} <b>Profit target</b> ${money(s.target)} — ${s.netProfit>=0?'+':''}${money(s.netProfit)} (${s.progress}%)</div>
+          ${s.dll>0?`<div class="prop-row">${s.dllViolations.length?'⚠':'✅'} <b>Daily loss limit</b> ${money(s.dll)} — ${s.dllViolations.length?('breached '+s.dllViolations.length+' day(s): '+s.dllViolations.map(d=>d.day).join(', ')):'no breaches'}</div>`:''}
+          <div class="prop-row">${s.maxDDbreach?'⚠':'✅'} <b>${ddLabel}</b> ${money(s.mll)} — ${s.maxDDbreach?'BREACHED':'within limit'}</div>
+          <div class="prop-row">${s.minDaysMet?'✅':'○'} <b>Min trading days</b> — ${s.tradingDays}/${s.minDays}${s.minDays?'':' (none required)'}</div>
+          ${s.cPct?`<div class="prop-row">${s.consistencyOk?'✅':'⚠'} <b>Consistency</b> (${esc(PROP.consistencyRule)}) — best day ${s.bestDayShare!=null?s.bestDayShare+'% of profit':'—'}</div>`:`<div class="prop-row">• <b>Consistency</b> — ${esc(PROP.consistencyRule||'none')}</div>`}
         </div>
+        ${f?`<div class="card-sub" style="margin-top:12px;line-height:1.5">${esc(f.notes)}</div>`:''}
       </div>`;
+    bindPicker(activeFirm);
+  }
+  function bindPicker(activeFirm){
+    const acctSel=$('#firm-acct'); if(!acctSel) return;
+    function fillAccts(firmId){ const f=FIRMS.get(firmId); if(!f)return;
+      acctSel.innerHTML=f.accounts.map(a=>`<option value="${esc(a.label)}" ${PROP&&PROP.firmId===firmId&&PROP.account===a.label?'selected':''}>${esc(a.label)} — target ${money(a.profitTarget)} · DD ${money(a.maxDrawdown)}${a.dailyLossLimit?' · DLL '+money(a.dailyLossLimit):' · no DLL'}</option>`).join('');
+      $('#firm-acct-row').style.display=''; }
+    if(activeFirm) fillAccts(activeFirm);
+    $$('#firm-logos .firm-logo-btn').forEach(b=>b.onclick=()=>{ _pickFirm=b.dataset.firm;
+      $$('#firm-logos .firm-logo-btn').forEach(x=>x.classList.toggle('sel',x===b)); fillAccts(b.dataset.firm); });
+    $('#firm-track').onclick=async()=>{ const firmId=_pickFirm||activeFirm; if(!firmId)return;
+      const cfg=FIRMS.toConfig(firmId, acctSel.value); if(!cfg)return; PROP=cfg; _pickFirm=null;
+      await Store.setSetting('prop',PROP); render(); toast(cfg.firm+' '+cfg.account+' tracked'); };
   }
 
   // ---------- modals ----------
