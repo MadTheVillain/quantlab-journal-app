@@ -58,5 +58,26 @@ const Charts = (function () {
     if(recapRO){ recapRO.disconnect(); } recapRO=new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth,height:host.clientHeight})); recapRO.observe(host);
     chart.applyOptions({width:host.clientWidth,height:host.clientHeight});
   }
-  return { equity, radar, rdist, recap, destroyAll:()=>Object.keys(inst).forEach(destroy) };
+  // Half-gauge split green(win)/red(loss) by pct
+  function gauge(canvasId, pct){
+    destroy(canvasId); const c=document.getElementById(canvasId); if(!c) return; const t=theme();
+    pct=Math.max(0,Math.min(100,pct));
+    inst[canvasId]=new Chart(c,{type:'doughnut',data:{datasets:[{data:[pct,100-pct],backgroundColor:[t.green,t.red],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,rotation:-90,circumference:180,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+  }
+  // Full donut: a(green) vs b(red)
+  function donut(canvasId, a, b){
+    destroy(canvasId); const c=document.getElementById(canvasId); if(!c) return; const t=theme();
+    inst[canvasId]=new Chart(c,{type:'doughnut',data:{datasets:[{data:[a||0,b||0],backgroundColor:[t.green,t.red],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'74%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+  }
+  // Net daily P&L bar chart (green/red)
+  function dailyPnl(canvasId, dayPnls){
+    destroy(canvasId); const c=document.getElementById(canvasId); if(!c) return; const t=theme();
+    const rows=(dayPnls||[]).slice(-40);
+    inst[canvasId]=new Chart(c,{type:'bar',data:{labels:rows.map(d=>d.date),datasets:[{data:rows.map(d=>d.pnl),backgroundColor:rows.map(d=>d.pnl>=0?t.green:t.red),borderRadius:3,barPercentage:.9,categoryPercentage:.95}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:(x)=>x[0].label,label:(x)=>' $'+Number(x.raw).toLocaleString()}}},
+        scales:{x:{display:false},y:{ticks:{color:t.muted,font:{size:10},callback:(v)=>'$'+(Math.abs(v)>=1000?(v/1000)+'k':v)},grid:{color:t.line}}}}});
+  }
+  return { equity, radar, rdist, recap, gauge, donut, dailyPnl, destroyAll:()=>Object.keys(inst).forEach(destroy) };
 })();
