@@ -219,10 +219,11 @@ button{font-family:inherit;cursor:pointer}
 .sc-foot{font-size:12px;color:var(--faint);margin-top:6px;font-weight:600}
 .sc-body{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:96px}
 .sc-body.col{flex-direction:column;align-items:flex-start;justify-content:center;gap:12px}
-.gauge-wrap{position:relative;width:130px;height:74px;flex:0 0 130px}
-.gauge-wrap canvas{width:130px!important;height:130px!important}
-.g-center{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-size:22px;font-weight:800;letter-spacing:-.5px}
-.donut-wrap{width:78px;height:78px;flex:0 0 78px}
+.gauge-wrap{position:relative;width:150px;height:80px;flex:0 0 150px;overflow:hidden}
+.gauge-wrap canvas{position:absolute;top:0;left:0;width:150px!important;height:150px!important}
+.g-center{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.donut-wrap{position:relative;width:80px;height:80px;flex:0 0 80px}
+.donut-wrap canvas{width:80px!important;height:80px!important}
 .wbl{display:flex;flex-direction:column;gap:7px}
 .wbl .pill{font-size:12px;font-weight:800;border-radius:7px;padding:3px 10px;text-align:center;min-width:44px}
 .wbl .pill.w{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent)}
