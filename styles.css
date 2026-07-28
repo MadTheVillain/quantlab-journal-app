@@ -202,3 +202,36 @@ button{font-family:inherit;cursor:pointer}
   .form-grid{grid-template-columns:1fr}
   #page-title{font-size:22px}
 }
+
+/* ===== Dashboard v2 (TradeZella-style) ===== */
+.dash-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.last-import{font-size:13px;color:var(--muted)}
+.last-import b{color:var(--ink);font-weight:700}
+.btn.addtrade{margin:0 0 14px;font-size:15px;padding:12px}
+.stat-row{display:grid;gap:16px;margin-bottom:16px}
+.stat-row.three{grid-template-columns:repeat(3,1fr)}
+.stat-row.two{grid-template-columns:1fr 1fr}
+.card.stat{padding:18px 20px}
+.sc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.n-badge{font-size:11px;font-weight:800;color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:2px 9px}
+.sc-val{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1.1}
+.sc-val.pos{color:var(--green)} .sc-val.neg{color:var(--red)}
+.sc-foot{font-size:12px;color:var(--faint);margin-top:6px;font-weight:600}
+.sc-body{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:96px}
+.sc-body.col{flex-direction:column;align-items:flex-start;justify-content:center;gap:12px}
+.gauge-wrap{position:relative;width:130px;height:74px;flex:0 0 130px}
+.gauge-wrap canvas{width:130px!important;height:130px!important}
+.g-center{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.donut-wrap{width:78px;height:78px;flex:0 0 78px}
+.wbl{display:flex;flex-direction:column;gap:7px}
+.wbl .pill{font-size:12px;font-weight:800;border-radius:7px;padding:3px 10px;text-align:center;min-width:44px}
+.wbl .pill.w{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent)}
+.wbl .pill.be{color:var(--muted);background:var(--soft)}
+.wbl .pill.l{color:var(--red);background:color-mix(in srgb,var(--red) 14%,transparent)}
+.wl-bar{display:flex;width:100%;height:12px;border-radius:8px;overflow:hidden;background:var(--soft)}
+.wl-win{background:var(--green)} .wl-loss{background:var(--red)}
+.wl-labels{display:flex;justify-content:space-between;width:100%;font-size:14px;font-weight:800}
+.wl-labels .pos{color:var(--green)} .wl-labels .neg{color:var(--red)}
+.chart-wrap.sm{height:210px}
+#start-day{padding:9px 16px;font-size:14px}
+@media(max-width:1000px){.stat-row.three{grid-template-columns:1fr}.stat-row.two{grid-template-columns:1fr}}
