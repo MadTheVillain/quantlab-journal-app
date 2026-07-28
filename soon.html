@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quant Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f8fb; --panel:#ffffff; --ink:#0f1319; --muted:#5c6675; --faint:#8c94a0;
+  --line:#e8ebf1; --soft:#f9fafb;
+  --purple:#7c6bff; --cyan:#22b8cf; --green:#12b3a6; --amber:#f5a524; --red:#e5484d;
+  --grad:linear-gradient(135deg,#7c6bff 0%,#22b8cf 100%);
+  --side:#12101c; --side-ink:#e9e7f2; --side-muted:#8b8aa3; --side-line:#241f38;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:Inter,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.app{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+.sidebar{background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;padding:20px 16px;position:sticky;top:0;height:100vh;border-right:1px solid var(--side-line)}
+.brand{display:flex;align-items:center;gap:12px;padding:6px 8px 22px}
+.logo{width:30px;height:30px;border-radius:9px;transform:rotate(45deg);background:var(--grad);box-shadow:0 6px 18px rgba(124,107,255,.45)}
+.brand-text{font-weight:800;font-size:19px;letter-spacing:-.3px;line-height:1}
+.brand-text span{display:block;font-weight:600;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--side-muted);margin-top:4px}
+.nav{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.nav a{display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:11px;color:var(--side-muted);font-weight:600;font-size:15px;transition:.15s}
+.nav a svg{width:19px;height:19px}
+.nav a:hover{background:#ffffff0d;color:var(--side-ink)}
+.nav a.active{background:linear-gradient(135deg,#7c6bff26,#22b8cf1f);color:#fff}
+.ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#ffffff0f;color:var(--side-ink);flex:0 0 30px}
+.nav a.active .ic{background:var(--grad);box-shadow:0 4px 12px rgba(124,107,255,.4)}
+.badge{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.08em;background:var(--amber);color:#241a02;padding:2px 6px;border-radius:5px}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--side-line);padding-top:14px}
+.side-foot a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--side-muted);font-weight:600;font-size:14px}
+.side-foot a:hover{background:#ffffff0d;color:var(--side-ink)}
+.side-foot svg{width:18px;height:18px}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 30px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+.ham{display:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;place-items:center}
+.ham svg{width:18px;height:18px}
+.top-right{display:flex;align-items:center;gap:14px;margin-left:auto}
+.ai-pill{display:flex;align-items:center;gap:9px;padding:8px 15px 8px 10px;border:1px solid var(--line);border-radius:12px;background:#fff;font-weight:700;font-size:14px}
+.ai-mark{width:24px;height:24px;border-radius:7px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:13px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;font-weight:800}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px 24px;max-width:640px;margin:0 auto}
+.hero .big{width:80px;height:80px;border-radius:22px;background:var(--grad);display:grid;place-items:center;color:#fff;box-shadow:0 20px 44px rgba(124,107,255,.4);margin-bottom:28px}
+.hero .big svg{width:38px;height:38px}
+.tag{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--purple);background:#7c6bff14;padding:6px 12px;border-radius:20px;margin-bottom:16px}
+.hero h1{font-size:40px;font-weight:800;letter-spacing:-1px}
+.hero p{font-size:17px;color:var(--muted);line-height:1.55;margin:14px 0 28px;max-width:520px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn{padding:12px 22px;border-radius:12px;font-weight:700;font-size:15px;border:1px solid var(--line);background:#fff}
+.btn.primary{background:var(--grad);color:#fff;border:none;box-shadow:0 10px 24px rgba(124,107,255,.35)}
+.previews{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:34px}
+.pv{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 15px;font-size:13.5px;font-weight:600;color:#2b3038;display:flex;align-items:center;gap:8px}
+.pv .d{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.scrim{display:none}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;width:264px;z-index:30;transform:translateX(-100%);transition:.25s}
+  .sidebar.open{transform:none}
+  .ham{display:grid}.hero h1{font-size:30px}
+  .scrim.show{display:block;position:fixed;inset:0;background:#0009;z-index:20}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="logo"></div><div class="brand-text">Quant Lab<span>Journal</span></div></div>
+    <nav class="nav" id="nav">
+      <a data-k="Home" href="home.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>Home</a>
+      <a data-k="Journal" href="index.html#trades"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>Journal</a>
+      <a data-k="Backtesting" href="soon.html?p=Backtesting"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 4-6"/></svg></span>Backtesting</a>
+      <a data-k="Agents" href="index.html#insights"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01"/></svg></span>Agents</a>
+      <a data-k="Mentor Mode" href="soon.html?p=Mentor+Mode"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4-8 4-8-4 8-4Z"/><path d="M4 11l8 4 8-4"/></svg></span>Mentor Mode</a>
+      <a data-k="PropFirm Sync" href="index.html#propfirm"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6l-4 4M6 18l4-4"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/></svg></span>PropFirm Sync<span class="badge">BETA</span></a>
+    </nav>
+    <div class="side-foot">
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>Contact us</a>
+      <a href="https://thequantlab.trading" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>Quant Academy</a>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" onclick="toggle()"></div>
+  <div class="main">
+    <header class="topbar">
+      <button class="ham" onclick="toggle()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <div class="top-right">
+        <div class="ai-pill"><span class="ai-mark">✦</span>Quant AI</div>
+        <div class="avatar">R</div>
+      </div>
+    </header>
+    <main>
+      <div class="hero">
+        <div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg></div>
+        <div class="tag">Coming soon</div>
+        <h1 id="title">Backtesting</h1>
+        <p id="blurb">This module is in the lab. It's part of the Quant Lab roadmap and lands soon — your journal, insights, and prop accounts are ready to use today.</p>
+        <div class="btns">
+          <a class="btn primary" href="index.html#dashboard">Open the Journal</a>
+          <a class="btn" href="home.html">Back to Home</a>
+        </div>
+        <div class="previews" id="previews"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+var q=new URLSearchParams(location.search);
+var name=(q.get('p')||'Backtesting').replace(/\+/g,' ');
+document.getElementById('title').textContent=name;
+document.title='Quant Lab — '+name;
+var blurbs={
+ 'Backtesting':'Replay historical data and validate the Essence & Set-2 models bar-by-bar before you risk a cent. Landing soon.',
+ 'Mentor Mode':'Guided reviews that grade your trades against your playbook and coach the next session. Landing soon.'
+};
+var previews={
+ 'Backtesting':['Bar-by-bar replay','Strategy stats','Equity curves'],
+ 'Mentor Mode':['Trade grading','Playbook adherence','Session coaching']
+};
+if(blurbs[name])document.getElementById('blurb').textContent=blurbs[name];
+(previews[name]||['In development']).forEach(function(t){var d=document.createElement('div');d.className='pv';d.innerHTML='<span class="d"></span>'+t;document.getElementById('previews').appendChild(d);});
+// highlight active nav
+document.querySelectorAll('#nav a').forEach(function(a){if(a.dataset.k===name)a.classList.add('active');});
+function toggle(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('scrim').classList.toggle('show')}
+</script>
+</body>
+</html>
