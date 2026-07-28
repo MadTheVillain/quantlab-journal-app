@@ -126,9 +126,15 @@ const Analytics = (function () {
     const winDays=day.filter(d=>d.pnl>0); const avgWinDay=winDays.length?sum(winDays.map(d=>d.pnl))/winDays.length:0;
     const remaining=Math.max(target-netProfit,0);
     const daysToPass = (avgWinDay>0 && remaining>0)? Math.ceil(remaining/avgWinDay) : (remaining<=0?0:null);
-    return { m, startBal, target, dll, mll, trailing, netProfit:round(netProfit), progress:round(progress,0),
+    const tradingDays=day.length; const minDays=+cfg.minTradingDays||0; const minDaysMet=tradingDays>=minDays;
+    const cPct=cfg.consistencyPct||null; const bestDay=m.bestDay;
+    const bestDayShare=(netProfit>0 && bestDay)? round(bestDay.pnl/netProfit*100,0):null;
+    const consistencyOk=(!cPct||netProfit<=0)?true:(bestDayShare<=cPct);
+    return { m, startBal, target, dll, mll, trailing, drawdownType:cfg.drawdownType||(trailing?'trailing':'static'),
+      netProfit:round(netProfit), progress:round(progress,0),
       currentDD:round(curDD), currentEquity:round(eq), worstDay, dllViolations, maxDDbreach,
-      daysToPass, avgWinDay:round(avgWinDay), day };
+      daysToPass, avgWinDay:round(avgWinDay), day,
+      tradingDays, minDays, minDaysMet, cPct, bestDay, bestDayShare, consistencyOk };
   }
 
   return { metrics, insights, group, statFor, sessionOf, adherence, propStatus, fmt, WD };
