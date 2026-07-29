@@ -229,11 +229,11 @@ function toggle(){document.getElementById('sidebar').classList.toggle('open');do
     const r=await fetch('https://raw.githubusercontent.com/MadTheVillain/quantlab-journal/main/data/trades.json',{cache:'no-store'});
     const d=await r.json(); const t=(d.trades||[]);
     if(!t.length) return;
-    let net=0,gp=0,gl=0,w=0,l=0,recent=0; const now=Date.now(), wk=7*864e5;
+    let net=0,gp=0,gl=0,w=0,l=0,recent=0; const _d=new Date(), _mon=new Date(_d.getFullYear(),_d.getMonth(),_d.getDate()-((_d.getDay()+6)%7)).getTime();
     for(const x of t){ const p=+x.pnl||0; net+=p;
       if(p>0){gp+=p;w++;} else if(p<0){gl+=-p;l++;}
       const ts=Date.parse(String(x.exit_ts||x.day||'').replace(' ','T'));
-      if(!isNaN(ts)&&now-ts<=wk) recent++; }
+      if(!isNaN(ts)&&ts>=_mon) recent++; }
     const wr=(w+l)>0?Math.round(w/(w+l)*100):0;
     const pf=gl>0?(gp/gl):(gp>0?99:0);
     const money=n=>(n>=0?'+':'-')+'$'+Math.abs(Math.round(n)).toLocaleString();
