@@ -178,10 +178,10 @@ a{color:inherit;text-decoration:none}
 
       <!-- Stats glance -->
       <div class="stats">
-        <div class="stat"><div class="s-lbl">Net P&amp;L</div><div class="s-val pos">+$1,501</div><div class="s-sub">this month</div></div>
-        <div class="stat"><div class="s-lbl">Win rate</div><div class="s-val">67%</div><div class="s-sub">6 trades &middot; 4W 2L</div></div>
-        <div class="stat"><div class="s-lbl">Profit factor</div><div class="s-val">4.25</div><div class="s-sub">all trades</div></div>
-        <div class="stat"><div class="s-lbl">Trades logged</div><div class="s-val">6</div><div class="s-sub pos">+3 this week</div></div>
+        <div class="stat"><div class="s-lbl">Net P&amp;L</div><div class="s-val pos" id="st-net">+$1,501</div><div class="s-sub">this month</div></div>
+        <div class="stat"><div class="s-lbl">Win rate</div><div class="s-val" id="st-wr">67%</div><div class="s-sub" id="st-wr-sub">6 trades &middot; 4W 2L</div></div>
+        <div class="stat"><div class="s-lbl">Profit factor</div><div class="s-val" id="st-pf">4.25</div><div class="s-sub">all trades</div></div>
+        <div class="stat"><div class="s-lbl">Trades logged</div><div class="s-val" id="st-ct">6</div><div class="s-sub pos" id="st-ct-sub">+3 this week</div></div>
       </div>
 
       <h2 class="section-title">Explore Products</h2>
@@ -221,6 +221,29 @@ function toggle(){document.getElementById('sidebar').classList.toggle('open');do
 // time-aware greeting
 (function(){var h=new Date().getHours();var g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
   var el=document.getElementById('greet');if(el)el.textContent=g+', ';})();
+</script>
+<script>
+/* Live stats: pull the bot's trade journal and fill the glance cards. Static values above are the fallback. */
+(async function(){
+  try{
+    const r=await fetch('https://raw.githubusercontent.com/MadTheVillain/quantlab-journal/main/data/trades.json',{cache:'no-store'});
+    const d=await r.json(); const t=(d.trades||[]);
+    if(!t.length) return;
+    let net=0,gp=0,gl=0,w=0,l=0,recent=0; const now=Date.now(), wk=7*864e5;
+    for(const x of t){ const p=+x.pnl||0; net+=p;
+      if(p>0){gp+=p;w++;} else if(p<0){gl+=-p;l++;}
+      const ts=Date.parse(String(x.exit_ts||x.day||'').replace(' ','T'));
+      if(!isNaN(ts)&&now-ts<=wk) recent++; }
+    const wr=(w+l)>0?Math.round(w/(w+l)*100):0;
+    const pf=gl>0?(gp/gl):(gp>0?99:0);
+    const money=n=>(n>=0?'+':'-')+'$'+Math.abs(Math.round(n)).toLocaleString();
+    const set=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+    set('st-net',money(net));
+    set('st-wr',wr+'%'); set('st-wr-sub',t.length+' trades \u00b7 '+w+'W '+l+'L');
+    set('st-pf',pf.toFixed(2));
+    set('st-ct',String(t.length)); set('st-ct-sub','+'+recent+' this week');
+  }catch(e){/* keep static fallback */}
+})();
 </script>
 </body>
 </html>
